@@ -1,0 +1,4 @@
+Improve graphical visualization (both preds in the same cell, goal state, ...)
+Simulation after training should stop after reaching goal state
+
+We could create another agent class for agents using communication.
