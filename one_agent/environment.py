@@ -69,14 +69,14 @@ class Environment:
             reward = 0
 
         # Update Q-values
-        self.update_Q(reward, self.alpha)
+        self.update_Q(reward)
 
         # return reward and chosen
         return reward, chosen_actions
     
 
     # Q-LEARNING update
-    def update_Q(self, reward, alpha):
+    def update_Q(self, reward):
 
         for pred in self.preds:
             old_value = pred.Q[pred.prev_state][pred.prev_action]
@@ -88,7 +88,7 @@ class Environment:
             next_max = np.max(pred.Q[index_new_state])
 
             # Q-learning update
-            pred.Q[pred.prev_state][pred.prev_action] = old_value + alpha * (reward + gamma * next_max - old_value )
+            pred.Q[pred.prev_state][pred.prev_action] = old_value + self.alpha * (reward + gamma * next_max - old_value )
             
 
     def hash(self):

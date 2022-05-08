@@ -1,4 +1,3 @@
-Improve graphical visualization (both preds in the same cell, goal state, ...)
-Simulation after training should stop after reaching goal state
-
-We could create another agent class for agents using communication.
+CASE OF 2 AGENTS WITHOUT COMMUNICATION:
+--> epsilon starts from 0.1 and decreases:
+    -epsilon decay rate = 0.001 or 0.0001??

@@ -63,20 +63,23 @@ class Environment:
         self.pred_locs = tuple(pred_locs)
 
         # REWARD
-        if (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]): # check on goal condition
-            reward = 1 # goal
-        else:
-            reward = 0
+        reward = self.calculate_reward()
 
         # Update Q-values
-        self.update_Q(reward, self.alpha)
+        self.update_Q(reward)
 
         # return reward and chosen
         return reward, chosen_actions
     
+    def calculate_reward(self):
+        if (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]): # check on goal condition
+            reward = 1 # goal
+        else:
+            reward = 0
+        return reward
 
     # Q-LEARNING update
-    def update_Q(self, reward, alpha):
+    def update_Q(self, reward):
         
         index_new_state = self.hash()
         for i, pred in enumerate(self.preds):
@@ -88,14 +91,14 @@ class Environment:
             next_max = np.max(pred.Q[index_new_state[i]])
 
             # Q-learning update
-            pred.Q[pred.prev_state][pred.prev_action] = old_value + alpha * (reward + gamma * next_max - old_value )
+            pred.Q[pred.prev_state][pred.prev_action] = old_value + self.alpha * (reward + gamma * next_max - old_value )
             
 
     def hash(self):
         '''
         Environment state (i.e. relative positions) can be hashed for use in agent's Q-table
         '''
-        # relative distance between 1st and 2nd preds
+        # relative distance between 1st and 2nd predators
         distance_to_pred = (self.pred_locs[0][0] - self.pred_locs[1][0], self.pred_locs[0][1] - self.pred_locs[1][1])
         # relative distance between 1st pred and the prey
         distance_to_prey = (self.pred_locs[0][0] - self.prey_loc[0][0], self.pred_locs[0][1] - self.prey_loc[0][1])
@@ -103,7 +106,7 @@ class Environment:
 
         # relative distance between 2nd and 1st preds
         distance_to_pred = (self.pred_locs[1][0] - self.pred_locs[0][0], self.pred_locs[1][1] - self.pred_locs[0][1])
-        # relative distance between 1st pred and the prey
+        # relative distance between 2nd pred and the prey
         distance_to_prey = (self.pred_locs[1][0] - self.prey_loc[0][0], self.pred_locs[1][1] - self.prey_loc[0][1])
         rel_pos2 = (distance_to_pred, distance_to_prey)
         
@@ -113,13 +116,34 @@ class Environment:
     def __repr__(self) -> str:
         # display environment as a grid
         grid = [[" "] * self.size[1] for _ in range(self.size[0])]
-        for i, pdl in enumerate(self.pred_locs):
-            if i == 0:
-                grid[pdl[0]][pdl[1]] = "X" # first agent represented with an 'X'
-            if i == 1:
-                grid[pdl[0]][pdl[1]] = "Y" # second agent represented with a 'Y'
-        for prl in self.prey_loc:
-            grid[prl[0]][prl[1]] = "O"
+
+        # first agent represented with an 'X'
+        grid[self.pred_locs[0][0]][self.pred_locs[0][1]] = "X"
+
+        # second agent represented with a 'Y
+        grid[self.pred_locs[1][0]][self.pred_locs[1][1]] = "Y"
+
+        # prey represented as an 'O'
+        grid[self.prey_loc[0][0]][self.prey_loc[0][1]] = "O"
+
+        # check  goal condition
+        if (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]): # check on goal condition
+            grid[self.prey_loc[0][0]][self.prey_loc[0][1]] = "XYO"
+        
+        # both predators in same cell
+        elif self.pred_locs[0] == self.pred_locs[1]:
+            grid[self.pred_locs[0][0]][self.pred_locs[0][1]] = "XY"
+        
+        # 1st predator and prey in same cell
+        elif self.pred_locs[0] == self.prey_loc[0]:
+            grid[self.pred_locs[0][0]][self.pred_locs[0][1]] = "XO"
+
+        # 2nd predator and prey in same cell
+        elif self.pred_locs[1] == self.prey_loc[0]:
+            grid[self.pred_locs[1][0]][self.pred_locs[1][1]] = "YO"
+
+
+
         
 
         # ADD NEW SYMBOLS FOR PREDS IN THE SAME CELL, OR FOR PRED AND PREY IN SAME CELL, OR ALL IN THE SAME CELL
