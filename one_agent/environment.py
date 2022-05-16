@@ -51,13 +51,15 @@ class Environment:
 
         chosen_actions = np.zeros(1, dtype=int) # chosen actions
         
-        # iterate over the predators
+        # iterate over the predators (only 1 in this case)
         for i, pred in enumerate(self.preds):
     
-            action = pred.select_action(h, self.epsilon) # predator selects action in current state
+            # predator selects action in current state
+            action = pred.select_action(h, self.epsilon) 
             chosen_actions[i] = int(action)
 
-            pred_locs[i] = move(pred_locs[i], action, self.size) # perform transition to next state
+            # perform transition to next state
+            pred_locs[i] = move(pred_locs[i], action, self.size) 
 
         # update state
         self.pred_locs = tuple(pred_locs)
@@ -82,9 +84,11 @@ class Environment:
             old_value = pred.Q[pred.prev_state][pred.prev_action]
             index_new_state = self.hash()
 
-            if index_new_state not in pred.Q.keys(): # first time in new state--> add it to Q-table
+            # first time in new state: add it to Q-table
+            if index_new_state not in pred.Q.keys(): 
                 pred.Q[index_new_state] = [0.001 for a in ACTIONS]
 
+            # max Q-value on next state
             next_max = np.max(pred.Q[index_new_state])
 
             # Q-learning update
@@ -95,6 +99,7 @@ class Environment:
         '''
         Environment state (i.e. relative positions) can be hashed for use in agent's Q-table
         '''
+        # calculate relative position: (x_rel, y_rel)
         rel_pos = (self.pred_locs[0][0] - self.prey_loc[0][0], self.pred_locs[0][1] - self.prey_loc[0][1]) 
         return hash(rel_pos)
     

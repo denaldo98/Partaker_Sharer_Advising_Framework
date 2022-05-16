@@ -51,8 +51,7 @@ class Environment:
         # iterate over the predators
         for i, pred in enumerate(self.preds):
     
-            # predator selects action in current state
-            action = pred.select_action(h[i], self.epsilon) 
+            action = pred.select_action(h[i], self.epsilon) # predator selects action in current state
             chosen_actions[i] = int(action)
 
             pred_locs[i] = move(pred_locs[i], action, self.size) # perform transition to next state
@@ -67,12 +66,10 @@ class Environment:
         self.update_Q(reward)
 
         # return reward and chosen
-        return reward, chosen_actions
+        return reward, chosen_actions, 0
     
     def calculate_reward(self):
-        
-        # check on goal condition
-        if (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]): 
+        if (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]): # check on goal condition
             reward = 1 # goal
         else:
             reward = 0
@@ -98,7 +95,7 @@ class Environment:
         '''
         Environment state (i.e. relative positions) can be hashed for use in agent's Q-table
         '''
-        # relative distance between 1st and 2nd predators 
+        # relative distance between 1st and 2nd predators
         distance_to_pred = (self.pred_locs[0][0] - self.pred_locs[1][0], self.pred_locs[0][1] - self.pred_locs[1][1])
         # relative distance between 1st pred and the prey
         distance_to_prey = (self.pred_locs[0][0] - self.prey_loc[0][0], self.pred_locs[0][1] - self.prey_loc[0][1])

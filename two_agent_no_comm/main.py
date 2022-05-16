@@ -17,12 +17,12 @@ ACTION_TO_STRING = ("down", "up", "left", "right", "stay")
 N = 10
 
 # Q-LEARNING PARAMS
-epsilon = 0.1
-max_epsilon = 0.1
+epsilon = 0.1 # decreasing
+max_epsilon = 1
 min_epsilon = 0.00001
 epsilon_decay_rate = 0.001
 
-alpha = 0.1
+alpha = 0.1 # fixed, for now
 #alpha = 1
 
 gamma = 0.9
@@ -57,9 +57,7 @@ def run_one_episode(env, epsilon , alpha):
 
     #while goal != 1: 
     for i in range(10):  
-        #old_q_table1 = copy.copy(env.preds[0].Q)
         goal, act = env.transition() # PERFORM 1 TRANSITION
-        #new_q_table1 = env.preds[0].Q
         performed_steps +=1
 
         # reduce epsilon at each step
@@ -80,8 +78,8 @@ def run_one_episode(env, epsilon , alpha):
     print("\nTotal required time: {} seconds, {} minutes".format(end_time - start_time, (end_time - start_time)/60))
 
 
-
 def run_multiple_episodes(n_episodes, env, epsilon, alpha):
+
     # Time to goal
     time_goal = []
     start_time = time.time()
@@ -98,13 +96,16 @@ def run_multiple_episodes(n_episodes, env, epsilon, alpha):
 
             goal, _ = env.transition() # returns 1 if goal state is reached
             performed_steps += 1
+        
+        # append to TG
         time_goal.append(performed_steps)
 
         # reduce epsilon
-        epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-epsilon_decay_rate * episode)
-        epsilon_list.append(epsilon)
+        #epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-epsilon_decay_rate * episode)
+        #epsilon_list.append(epsilon)
 
         # reduce alpha
+        
         if episode % 50 == 0:
             print(f"Completed {episode} / {n_episodes} episodes")
 
@@ -121,7 +122,7 @@ def run_multiple_episodes(n_episodes, env, epsilon, alpha):
     utl.plot_time_to_goal(n_episodes, time_goal, avg=1)
 
 
-# SIMULATION (with the learned Q-values)
+# SIMULATION (with the learned Q-values) --> run simulation to see what the agents have learned
 def run_simulation(env):
     
     reward = "Initial configuration -->NO REWARD"
@@ -151,9 +152,12 @@ def run_simulation(env):
 
 
 
+
+
 # RUN THE FUNCTIONS
 
-#run_one_episode(env, epsilon, alpha)
+#run_one_episode(env, epsilon, alpha) # --> run to see step by step transitions
+
 run_multiple_episodes(n_episodes, env, epsilon, alpha)
 
 run_simulation(env)
