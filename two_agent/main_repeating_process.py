@@ -81,7 +81,7 @@ b_ask1_list_no_comm = [] # b_ask1 list of each process iteration
 print("\n\n\n....STARTING TRAINING WITHOUT COMMUNICATION....\n\n")
 start = time.time()
 
-processes = 70 # number of times to repeat the training process
+processes = 3 # number of times to repeat the training process
 for i in range(processes):
     print("\n\n\nPROCESS ITERATION NUMBER: {}\n".format(i+1))
     start_time = time.time()

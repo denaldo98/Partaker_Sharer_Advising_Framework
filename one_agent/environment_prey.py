@@ -5,7 +5,7 @@ import numpy as np
 random.seed(247)
 
 # Q-LEARNING PARAMETERS (define in the main)
-gamma = 0.9 
+gamma = 0.9
 
 
 # ACTIONS
@@ -47,10 +47,16 @@ class Environment:
         # get the state index
         h = self.hash()
 
-        # get predator's locations
+        # get predators' locations
         pred_locs = list(self.pred_locs)
 
+        # get prey location
+        prey_loc = list(self.prey_loc)
+
         chosen_actions = np.zeros(1, dtype=int) 
+
+        # prey chooses action
+        prey_action = int(self.prey_choose_action())
         
         # iterate over the predators (only 1 in this case)
         for i, pred in enumerate(self.preds):
@@ -60,10 +66,14 @@ class Environment:
             chosen_actions[i] = int(action)
 
             # perform transition to next state
-            pred_locs[i] = move(pred_locs[i], action, self.size) 
+            pred_locs[i] = move(pred_locs[i], action, self.size)
+
+        # prey transition
+        prey_loc[0] = move(prey_loc[0], prey_action, self.size) 
 
         # update state
         self.pred_locs = tuple(pred_locs)
+        self.prey_loc = tuple(prey_loc)
 
         # REWARD
         # GOAL CONDITION: predator and prey in same grid cell
@@ -75,9 +85,29 @@ class Environment:
         # Update Q-values
         self.update_Q(reward)
 
-        # return reward and chosen action
-        return reward, chosen_actions, -1 # -1 for prey action (fixed in this case)
+        # return reward and chosen actions
+        return reward, chosen_actions, prey_action
     
+    # prey selects action
+    def prey_choose_action(self):
+
+        rand = random.uniform(0, 1)
+        
+        # random movement
+        if rand < 0.2:
+            return (random.choice(ACTIONS))
+
+        # move away from pred
+        else:
+        
+            # calculate all possible future distances and coordinates
+            future_distances = np.zeros(5, dtype=int)
+            for i, a in enumerate(ACTIONS):
+                future_coordinates = move(self.prey_loc[0], a, self.size)
+                future_distances[i] = abs(self.pred_locs[0][0] - future_coordinates[0]) + abs(self.pred_locs[0][1] - future_coordinates[1])
+            
+            # return action maximizing future distance
+            return np.argmax(future_distances)
 
     # Q-LEARNING update
     def update_Q(self, reward):
@@ -120,15 +150,14 @@ class Environment:
 
         for i, pdl in enumerate(self.pred_locs):
             if i == 0:
-                grid[pdl[0]][pdl[1]] = "X" # first agent represented with an 'X'
-            if i == 1:
-                grid[pdl[0]][pdl[1]] = "Y" # second agent represented with a 'Y'
+                # first agent represented with an 'X'
+                grid[pdl[0]][pdl[1]] = "X" 
+ 
         for prl in self.prey_loc:
+
+            # prey represented with an 'o'
             grid[prl[0]][prl[1]] = "O"
         
-
-        # ADD NEW SYMBOLS FOR PREDS IN THE SAME CELL, OR FOR PRED AND PREY IN SAME CELL, OR ALL IN THE SAME CELL
-
         return (
             ("_" * self.size * 2 + "\n")
             + "\n".join("|" + " ".join(row) + "|" for row in grid)

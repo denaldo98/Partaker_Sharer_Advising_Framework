@@ -1,30 +1,32 @@
+# NO COMMUNICATION WITH MOVING PREY
 import random
 import numpy as np
 
 # set seed for reproducible experiments
-#random.seed(1)
+random.seed(247)
 
 # Q-LEARNING PARAMETERS (defined in the main)
-gamma = 0.9 # fixed
+gamma = 0.9 
 
 # ACTIONS
 ACTIONS = (0, 1, 2, 3, 4)
 ACTION_TO_STRING = ("down", "up", "left", "right", "stay")
 ACTION_TO_PAIR = ((1, 0), (-1, 0), (0, -1), (0, 1), (0, 0))
 
-
+# ----------------------------- ENVIRONMENT ---------------------------#
 class Environment:
     
     def __init__(self, N):
-        self.N = N
-        self.size = (N, N) # grid dimensions
+        
+        # grid dimension
+        self.size = N 
 
         # create predators/agents
         self.preds = [Agent() for _ in range(2)]
 
     # auxiliary function returning a random pair of coordinates
     def randpair(self):
-        return (random.randrange(self.N), random.randrange(self.N))
+        return (random.randrange(self.size), random.randrange(self.size))
     
     # Randomly set the coordinates
     def reset(self, epsilon, alpha):
@@ -34,30 +36,43 @@ class Environment:
         self.prey_loc = tuple([self.randpair()]) # single tuple with prey coordinates
 
         # check bad initialization
-        while (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]):
-            self.pred_locs = tuple([self.randpair() for _ in range(2)]) 
-            self.prey_loc = tuple([self.randpair()]) 
+        #while (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]):
+        #    self.pred_locs = tuple([self.randpair() for _ in range(2)]) 
+        #    self.prey_loc = tuple([self.randpair()]) 
 
     # perform a transition 
     def transition(self):
+
         # get the state index
         h = self.hash()
 
-        # get predator's locations
+        # get predators' locations
         pred_locs = list(self.pred_locs)
 
-        chosen_actions = np.zeros(2, dtype=int) # chosen actions
+        # get prey location
+        prey_loc = list(self.prey_loc)
+
+        chosen_actions = np.zeros(2, dtype=int) 
         
+        # prey chooses action
+        prey_action = int(self.prey_choose_action())
+
         # iterate over the predators
         for i, pred in enumerate(self.preds):
-    
-            action = pred.select_action(h[i], self.epsilon) # predator selects action in current state
+            
+            # action selection
+            action = pred.select_action(h[i], self.epsilon)
             chosen_actions[i] = int(action)
 
-            pred_locs[i] = move(pred_locs[i], action, self.size) # perform transition to next state
+            # perform transition to next state
+            pred_locs[i] = move(pred_locs[i], action, self.size)
+        
+        # prey transition
+        prey_loc[0] = move(prey_loc[0], prey_action, self.size)
 
         # update state
         self.pred_locs = tuple(pred_locs)
+        self.prey_loc = tuple(prey_loc)
 
         # REWARD
         reward = self.calculate_reward()
@@ -65,26 +80,77 @@ class Environment:
         # Update Q-values
         self.update_Q(reward)
 
-        # return reward and chosen
-        return reward, chosen_actions, 0
+        # return reward, chosen actions and budgets (0 in this case)
+        return reward, chosen_actions, prey_action, 0, 0
+
+    # prey selects action
+    def prey_choose_action(self):
+
+        rand = random.uniform(0, 1)
+        
+        # random movement
+        if rand < 0.2:
+            return (random.choice(ACTIONS))
+
+        # move away from preds
+        else:
+            
+            abs_distances = np.zeros(2, dtype=int)
+
+            # calclulate absolute distances between prey and each pred
+            for i in range(2):
+                abs_distances[i] = abs(self.pred_locs[i][0] - self.prey_loc[0][0]) + abs(self.pred_locs[i][1] - self.prey_loc[0][1])
+
+            # get closest pred to the prey
+            closest_pred = np.argmin(abs_distances)
+            
+            # calculate all possible future distances and coordinates
+            future_distances = np.zeros(5, dtype=int)
+            for i, a in enumerate(ACTIONS):
+                future_coordinates = move(self.prey_loc[0], a, self.size)
+                future_distances[i] = abs(self.pred_locs[closest_pred][0] - future_coordinates[0]) + abs(self.pred_locs[closest_pred][1] - future_coordinates[1])
+            
+            # return action maximizing future distance
+            return np.argmax(future_distances)
     
     def calculate_reward(self):
-        if (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]): # check on goal condition
-            reward = 1 # goal
+        '''
+        Calculate reward for cooperative agents:
+        --> 1 in case of goal state
+        --> 0 otherwise
+        GOAL STATE: 1 predator in the same prey cell and the other in a contiguous cell
+        '''
+        # absolute distances between preds and prey
+        absolute_distance1 = abs(self.pred_locs[0][0] - self.prey_loc[0][0]) + abs(self.pred_locs[0][1] - self.prey_loc[0][1])
+        absolute_distance2 = abs(self.pred_locs[1][0] - self.prey_loc[0][0]) + abs(self.pred_locs[1][1] - self.prey_loc[0][1])
+
+        # check goal condition
+        if ((self.pred_locs[0] == self.prey_loc[0]) and absolute_distance2 == 1) or ((self.pred_locs[1] == self.prey_loc[0]) and absolute_distance1 == 1):
+            reward = 1 
         else:
             reward = 0
+
         return reward
 
     # Q-LEARNING update
     def update_Q(self, reward):
-        
+        '''
+        Apply Q-learning update formula for both agents
+        '''
+        # get index of newly reached state after transitions
         index_new_state = self.hash()
-        for i, pred in enumerate(self.preds):
-            old_value = pred.Q[pred.prev_state][pred.prev_action]
 
-            if index_new_state[i] not in pred.Q.keys(): # first time in new state--> add it to Q-table
+        # iterate over agents
+        for i, pred in enumerate(self.preds):
+
+            # Q-value in previous (state, action) pair
+            old_value = pred.Q[pred.prev_state][pred.prev_action]
+            
+            # check new state and add it to Q-table
+            if index_new_state[i] not in pred.Q.keys(): 
                 pred.Q[index_new_state[i]] = [0 for a in ACTIONS]
 
+            # max Q-value in next state
             next_max = np.max(pred.Q[index_new_state[i]])
 
             # Q-learning update
@@ -109,10 +175,10 @@ class Environment:
         
         return [hash(rel_pos1), hash(rel_pos2)]
     
-
+    # plot grid
     def __repr__(self) -> str:
         # display environment as a grid
-        grid = [[" "] * self.size[1] for _ in range(self.size[0])]
+        grid = [[" "] * self.size for _ in range(self.size)]
 
         # first agent represented with an 'X'
         grid[self.pred_locs[0][0]][self.pred_locs[0][1]] = "X"
@@ -140,9 +206,9 @@ class Environment:
             grid[self.pred_locs[1][0]][self.pred_locs[1][1]] = "YO"
 
         return (
-            ("_" * self.size[1] * 2 + "\n")
+            ("_" * self.size * 2 + "\n")
             + "\n".join("|" + " ".join(row) + "|" for row in grid)
-            + ("\n" + " ̅" * self.size[1] * 2 + "\n")
+            + ("\n" + " ̅" * self.size * 2 + "\n")
         )
 
 
@@ -150,12 +216,17 @@ class Environment:
 class Agent:
 
     def __init__(self):
+
         # initialize Q-table
         self.Q = {}
  
     # select action according to epsilon greedy approach
     def select_action(self, h, epsilon):
-        if h not in self.Q.keys():# first time in the state
+
+        # check new state 
+        if h not in self.Q.keys():
+            
+            # initialize Q-table in new state
             self.Q[h] = [0 for a in ACTIONS]
 
         rand = random.uniform(0, 1)
@@ -166,20 +237,24 @@ class Agent:
         else:
             action = np.argmax(self.Q[h]) 
 
-        # save initial state and chosen action    
+        # update old state and action (for Q-learning update)   
         self.prev_action = action
         self.prev_state = h
         
         return action
     
 
-# perform TRANSITION on the grid
+# perform state transition
 def move(start, action, size):
-    directions = ACTION_TO_PAIR[action] # convert action into pair
-    final_position = start[0] + directions[0], start[1] + directions[1] # coordinates of next state
+
+    # convert action into pair
+    directions = ACTION_TO_PAIR[action]
+
+    # compute new coordinates
+    final_position = start[0] + directions[0], start[1] + directions[1] 
 
     # in case of forbidden action, stay in the same position
-    if not (0 <= final_position[0] < size[0] and 0 <= final_position[1] < size[1]):
+    if not (0 <= final_position[0] < size and 0 <= final_position[1] < size):
         return start
 
     # return new coordinates

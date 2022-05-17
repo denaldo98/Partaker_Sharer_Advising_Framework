@@ -1,12 +1,13 @@
+# COMMUNICATION WITH FIXED PREY
 import random
 import numpy as np
 import math
 
 # set seed for reproducible experiments
-#random.seed(1)
+random.seed(247)
 
 # Q-LEARNING PARAMETERS (defined in the main)
-gamma = 0.9 # fixed
+gamma = 0.9 
 
 # COMMUNICATION PARAMETERS
 vp = 0.7
@@ -16,19 +17,20 @@ ACTIONS = (0, 1, 2, 3, 4)
 ACTION_TO_STRING = ("down", "up", "left", "right", "stay")
 ACTION_TO_PAIR = ((1, 0), (-1, 0), (0, -1), (0, 1), (0, 0))
 
-
+# ----------------------------- ENVIRONMENT ---------------------------#
 class Environment:
     
     def __init__(self, N):
-        self.N = N
-        self.size = (N, N) # grid dimensions
+
+        # grid dimension
+        self.size = N
 
         # create predators/agents
         self.preds = [Agent() for _ in range(2)]
 
     # auxiliary function returning a random pair of coordinates
     def randpair(self):
-        return (random.randrange(self.N), random.randrange(self.N))
+        return (random.randrange(self.size), random.randrange(self.size))
     
     # Randomly set the coordinates
     def reset(self, epsilon, alpha):
@@ -38,9 +40,9 @@ class Environment:
         self.prey_loc = tuple([self.randpair()]) # single tuple with prey coordinates
 
         # check bad initialization
-        while (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]):
-            self.pred_locs = tuple([self.randpair() for _ in range(2)]) 
-            self.prey_loc = tuple([self.randpair()]) 
+        #while (self.pred_locs[0] == self.prey_loc[0]) and (self.pred_locs[1] == self.prey_loc[0]):
+        #    self.pred_locs = tuple([self.randpair() for _ in range(2)]) 
+        #    self.prey_loc = tuple([self.randpair()]) 
 
     # perform a transition 
     def transition(self):
@@ -50,7 +52,7 @@ class Environment:
         # action selection
         chosen_actions = self.choose_actions(h, self.epsilon) # list of chosen actions
 
-        # get predator's locations
+        # get predatos' locations
         pred_locs = list(self.pred_locs)
 
         # perform transitions to next state
@@ -66,14 +68,14 @@ class Environment:
         # Update Q-values
         self.update_Q(reward)
 
-        # return reward, chosen actions and budget
-        return reward, chosen_actions, self.preds[0].b_ask
+        # return reward, chosen actions (no action for prey) and budgets of 1st pred
+        return reward, chosen_actions, -1, self.preds[0].b_ask, self.preds[0].b_give
 
     # agents select action
     def choose_actions(self, h, epsilon):
         
         # chosen actions
-        actions = []
+        actions = np.zeros(2, dtype=int)
 
         # initialize and update dictionaries
         for i in range(2):
@@ -182,8 +184,8 @@ class Environment:
             action2 = self.preds[1].select_action(h[1], epsilon)
         
         # update list of chosen actions
-        actions.append(action1)
-        actions.append(action2)
+        actions[0] = int(action1)
+        actions[1] = int(action2)
 
         # update (state, action) visits
         self.preds[0].sa_visits[h[0]][action1] += 1
@@ -248,10 +250,16 @@ class Environment:
         
         return [hash(rel_pos1), hash(rel_pos2)]
     
-
+    # set budget to zero when performing the simulation
+    def set_budget(self):
+        for pred in self.preds:
+            pred.b_ask = 0
+            pred.b_give = 0
+    
+    #  plot grid
     def __repr__(self) -> str:
         # display environment as a grid
-        grid = [[" "] * self.size[1] for _ in range(self.size[0])]
+        grid = [[" "] * self.size for _ in range(self.size)]
 
         # first agent represented with an 'X'
         grid[self.pred_locs[0][0]][self.pred_locs[0][1]] = "X"
@@ -279,13 +287,12 @@ class Environment:
             grid[self.pred_locs[1][0]][self.pred_locs[1][1]] = "YO"
 
         return (
-            ("_" * self.size[1] * 2 + "\n")
+            ("_" * self.size * 2 + "\n")
             + "\n".join("|" + " ".join(row) + "|" for row in grid)
-            + ("\n" + " ̅" * self.size[1] * 2 + "\n")
+            + ("\n" + " ̅" * self.size * 2 + "\n")
         )
 
 
-# IQL agent
 class Agent:
 
     def __init__(self):
@@ -327,7 +334,7 @@ class Agent:
         if self.b_give > 0:
 
             # check new state
-            if partaker_state in self.Q.keys():
+            if partaker_state in self.Q.keys() and partaker_state in self.sa_visits.keys():
                 
                 best_action = int(np.argmax(self.Q[partaker_state]))
 
@@ -356,7 +363,7 @@ def move(start, action, size):
     # convert action into pair
     directions = ACTION_TO_PAIR[action] 
 
-    # compute new coordinates
+    
     final_position = start[0] + directions[0], start[1] + directions[1]
 
     # in case of forbidden action, stay in the same position
