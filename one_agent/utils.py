@@ -96,14 +96,14 @@ def plot_time_to_goal(model_name, n_episodes, time_goal, avg = 0 ):
         for i in range(int(n_episodes/100)):
             averages.append(np.mean(time_goal[i*100: i*100 + 100]))   
         plt.plot(range(int(n_episodes/100)), averages)
-        plt.title("Time To Goal averaged every 100 episodes" + model_name)
+        plt.title("Time To Goal averaged every 100 episodes_" + model_name)
         plt.xlabel("Training Episodes (x 100)")
         plt.ylabel("Time To Goal")
         plt.tight_layout()
         plt.savefig(model_name + "_avgTG")
     else: # plot TG over the episodes
         plt.plot(range(n_episodes), time_goal)
-        plt.title("Time To Goal over the episodes" + model_name)
+        plt.title("Time To Goal over the episodes_" + model_name)
         plt.xlabel("Training Episodes")
         plt.ylabel("Time To Goal")
         plt.tight_layout()

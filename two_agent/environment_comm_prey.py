@@ -50,17 +50,19 @@ class Environment:
         # get the state index
         h = self.hash()
 
-        # action selection
-        chosen_actions = self.choose_actions(h, self.epsilon) # array of chosen actions
-
-        # prey chooses action
-        prey_action = int(self.prey_choose_action())
-
         # get predators' locations
         pred_locs = list(self.pred_locs)
 
         # get prey location
         prey_loc = list(self.prey_loc)
+
+        chosen_actions = np.zeros(2, dtype=int)
+
+        # prey chooses action
+        prey_action = int(self.prey_choose_action())
+
+        # action selection
+        chosen_actions = self.choose_actions(h, self.epsilon) # array of chosen actions
 
         # perform transitions to next state
         for i in range(2):
@@ -113,7 +115,7 @@ class Environment:
                 self.preds[i].s_visits[h[i]] += 1
 
 
-        # -------------------------------------------------------- PSAF ALGORITHM ----------------------------------------------------- #
+        # ---------------------------------------------- PSAF ALGORITHM ------------------------------------------- #
 
         # 1st AGENT
 
@@ -181,7 +183,7 @@ class Environment:
                     action2 = np.argmax(self.preds[1].Q[h[1]])
 
                     # update old state and action (for Q-learning update)
-                    self.preds[1].prev_action = action1
+                    self.preds[1].prev_action = action2
                     self.preds[1].prev_state = h[1]
                 
                 # not provided value
@@ -298,7 +300,7 @@ class Environment:
         
         return [hash(rel_pos1), hash(rel_pos2)]
     
-    # to be called to set budget to zero when performing the simulation
+    # set budget to zero when performing the simulation
     def set_budget(self):
         for pred in self.preds:
             pred.b_ask = 0

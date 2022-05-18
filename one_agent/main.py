@@ -46,6 +46,14 @@ model_name = "single_Agent_" + "Fixed_Prey_" + "Grid_" + str(N)
 
 time_goal = utl.run_multiple_episodes(n_episodes, env, max_steps, epsilon, alpha)
 
+# save environment object into file for later retrieval
+with open(model_name + "_env", "wb") as fp:
+    pickle.dump(env, fp)
+
+# save TG into file for later retrieval
+with open(model_name + "_list", "wb") as fp:
+    pickle.dump(time_goal, fp)
+
 # save TG into file for later retrieval
 with open(model_name + "_list", "wb") as fp:
     pickle.dump(time_goal, fp)
@@ -57,15 +65,26 @@ plt.clf()
 # Plot TG averaged every 100 episodes
 utl.plot_time_to_goal(model_name, n_episodes,  time_goal, avg=1)
 plt.clf()
+'''
+
+
+# --------------------------------- COMPARISONS -------------------------------#
+
+'''
+# load environment
+model_name = "single_Agent_" + "Fixed_Prey_" + "Grid_" + str(N)
+with open(model_name + "_env", "rb") as fp:
+    env = pickle.load(fp)
+    # reset the environment before simulation
+
+# retrieve Q-table
+print(env.preds[0].Q)
 
 # run simulation
 #utl.run_simulation(env)
-
+'''
 
 '''
-# --------------------------------- COMPARISONS -------------------------------#
-
-
 # load TG lists for combined plot
 # load model with fixed prey
 model_name1 = "single_Agent_" + "Fixed_Prey_" + "Grid_" + str(N)
@@ -80,6 +99,5 @@ with open(model_name2 + "_list", "rb") as fp:
 # Plot comparison of TGs 
 utl.plot_TG_comparison(model_name1, model_name2, tg1, tg2, n_episodes)
 plt.clf()
-
-
+'''
 

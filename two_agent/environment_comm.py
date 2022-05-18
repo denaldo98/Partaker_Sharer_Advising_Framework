@@ -170,7 +170,7 @@ class Environment:
                     action2 = np.argmax(self.preds[1].Q[h[1]])
 
                     # update old state and action (for Q-learning update)
-                    self.preds[1].prev_action = action1
+                    self.preds[1].prev_action = action2
                     self.preds[1].prev_state = h[1]
                 
                 # not provided value
