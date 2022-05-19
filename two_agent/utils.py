@@ -220,7 +220,7 @@ def repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, env_type,
     for i in range(n_processes):
 
         print("\n\n\nPROCESS ITERATION NUMBER: {}".format(i+1))
-        start_time = time.time()
+        #start_time = time.time()
 
         # at each process iteration we re-create the environment
         if env_type == "comm_prey": # PSAF environment with moving prey
@@ -237,7 +237,7 @@ def repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, env_type,
         time_goal, b_ask1, b_give1 = run_multiple_episodes(n_episodes, env, max_steps2, epsilon, alpha)   
 
         # print training time of current RUN
-        print("\nPROCESS ITERATION REQUIRED TIME: {} seconds, {} minutes".format(time.time()-start_time, (time.time()-start_time)/60))
+        #print("\nPROCESS ITERATION REQUIRED TIME: {} seconds, {} minutes".format(time.time()-start_time, (time.time()-start_time)/60))
         
         # append TG and budgets of each process run
         tg_list.append(time_goal)

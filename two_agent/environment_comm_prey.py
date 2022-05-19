@@ -357,8 +357,8 @@ class Agent:
         self.sa_visits = {}
 
         # budgets
-        self.b_ask = 3000
-        self.b_give = 3000
+        self.b_ask = 1000
+        self.b_give = 1000
  
     # select action according to epsilon greedy approach
     def select_action(self, h, epsilon):

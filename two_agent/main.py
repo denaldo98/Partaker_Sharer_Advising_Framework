@@ -16,7 +16,7 @@ import environment_no_comm
 
 
 # GRID SIZE
-N = 10
+N = 12
 
 # Q-LEARNING PARAMS
 epsilon = 0.1 
@@ -34,13 +34,13 @@ max_steps = 5000 # max steps of each episode
 #env = environment_no_comm.Environment(N)
 #env = environment_no_comm_prey.Environment(N)
 #env = environment_comm.Environment(N)
-#env = environment_comm_prey.Environment(N)
+env = environment_comm_prey.Environment(N)
 
 
 #model_name = "2_Agents_" + "no_comm_" + "Fixed_Prey_" + "Grid_" + str(N)
 #model_name = "2_Agents_" + "no_comm_" + "Moving_Prey_" + "Grid_" + str(N)
 #model_name = "2_Agents_" + "comm_" + "Fixed_Prey_" + "Grid_" + str(N)
-model_name = "2_Agents_" + "comm_" + "Moving_Prey_" + "Grid_" + str(N)
+model_name = "2_Agents_" + "comm_Reduced_Budget" + "Moving_Prey_" + "Grid_" + str(N)
 
 
 # RUN THE FUNCTIONS
@@ -53,7 +53,7 @@ model_name = "2_Agents_" + "comm_" + "Moving_Prey_" + "Grid_" + str(N)
 
 # repat TRAINING process n_processes time (pay attention to the namve of the environmen)
 # env_type can be : "comm_prey", "no_comm_prey", "comm"
-n_processes = 7
+n_processes = 20
 time_goal, b_ask1_list, b_give1_list = utl.repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, "comm_prey", N)
 
 

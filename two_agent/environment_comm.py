@@ -367,7 +367,7 @@ def move(start, action, size):
     final_position = start[0] + directions[0], start[1] + directions[1]
 
     # in case of forbidden action, stay in the same position
-    if not (0 <= final_position[0] < size[0] and 0 <= final_position[1] < size[1]):
+    if not (0 <= final_position[0] < size and 0 <= final_position[1] < size):
         return start
 
     # return new coordinates
