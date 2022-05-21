@@ -72,6 +72,7 @@ def run_multiple_episodes(n_episodes, env, max_steps, epsilon, alpha):
     print("\n\nTRAINING FINISHED") 
     print("\nTotal required time: {} seconds, {} minutes".format(end_time - start_time, (end_time - start_time)/60))
 
+    #return lists
     return time_goal, b_ask1_list, b_give1_list
 
 
@@ -99,7 +100,7 @@ def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
     for episode in range(n_episodes):
         print("\n\nEpisode: {}".format(episode))
 
-        # # randomly initialize the state of the env
+        # randomly initialize the state of the env
         env.reset(epsilon, alpha)
 
         goal = 0 # 1 if goal state
@@ -127,7 +128,8 @@ def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
             if actions[0] != "No action":
                 print("Action chosen by X: {}".format(ACTION_TO_STRING[int(actions[0])]))
                 print("Action chosen by Y: {}".format(ACTION_TO_STRING[int(actions[1])]))
-                print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
+                if prey_action != -1:
+                    print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
             print("Reward: {}".format(reward))
             reward, actions, prey_action, b_ask1, b_give1 = env.transition()
             goal = reward
@@ -157,7 +159,8 @@ def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
         print("b_give of Y: {}".format(env.preds[1].b_give))
         print("Action chosen by X: {}".format(ACTION_TO_STRING[int(actions[0])]))
         print("Action chosen by Y: {}".format(ACTION_TO_STRING[int(actions[1])]))
-        print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
+        if prey_action != -1:
+            print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
 
         print("Reward: {}".format(reward))
         print("Performed steps: {}".format(performed_steps))
@@ -213,6 +216,16 @@ def run_simulation(env, with_budget = 0):
         input("Press enter to visualize next state")
     print(env)
     print("Goal state reached!")
+
+    print("Predator X coordinates: {}".format(env.pred_locs[0]))
+    print("Predator Y coordinates: {}".format(env.pred_locs[1]))
+    print("Prey O coordinate: {}".format(env.prey_loc[0]))
+    print("Action chosen by X: {}".format(ACTION_TO_STRING[int(action[0])]))
+    print("Action chosen by Y: {}".format(ACTION_TO_STRING[int(action[1])]))
+    if prey_action != -1:
+        print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
+
+    print("Reward: {}".format(reward))
     print("Performed steps: {}".format(time_step))
 
 
@@ -258,9 +271,6 @@ def repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, env_type,
         # TRAIN FOR 20.000 episodes
         max_steps2 = max_steps # to avoid reducing max_steps
         time_goal, b_ask1, b_give1 = run_multiple_episodes(n_episodes, env, max_steps2, epsilon, alpha)   
-
-        # print training time of current RUN
-        #print("\nPROCESS ITERATION REQUIRED TIME: {} seconds, {} minutes".format(time.time()-start_time, (time.time()-start_time)/60))
         
         # append TG and budgets of each process run
         tg_list.append(time_goal)
@@ -333,7 +343,7 @@ def plot_TG_comparison(model_name1, model_name2, list1, list2, n_episodes, avg=1
     Compare TG lists of 2 different models
     Parameter avg as before
     '''
-    if avg:
+    if avg: # plot avg every 100 episodes
         averages1 = []
         averages2 = []
         for i in range(int(n_episodes/100)):
@@ -347,7 +357,7 @@ def plot_TG_comparison(model_name1, model_name2, list1, list2, n_episodes, avg=1
         plt.legend()
         plt.tight_layout()
         plt.savefig("comparison" + "_TG_" + model_name1 + "_" + model_name2)
-    else:
+    else: # plot TG over the episodes
         plt.plot(range(n_episodes), list1, label=model_name1)
         plt.plot(range(n_episodes), list2, label=model_name2)
         plt.title("Time To Goal over the episodes")

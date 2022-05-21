@@ -29,16 +29,16 @@ max_steps = 5000 # max steps of each episode (if goal not reached)
 # -------------------------- RUN EXPERIMENTS ----------------------------#
 
 # CREATE ENVIRONMENT by passing the grid size
-#env = environment_no_comm.Environment(N)
-#env = environment_no_comm_prey.Environment(N)
-#env = environment_comm.Environment(N)
-env = environment_comm_prey.Environment(N)
+#env = environment_no_comm.Environment(N) # non communicating, fixed prey
+#env = environment_no_comm_prey.Environment(N) # non communicating, moving prey
+#env = environment_comm.Environment(N) # communicating, fixed prey
+env = environment_comm_prey.Environment(N) # communicating, moving prey
 
 # define NAME OF THE MODEL for saving files with correct names
 #model_name = "2_Agents_" + "no_comm_" + "Fixed_Prey_" + "Grid_" + str(N)
-model_name = "2_Agents_" + "no_comm_" + "Moving_Prey_" + "Grid_" + str(N)
+#model_name = "2_Agents_" + "no_comm_" + "Moving_Prey_" + "Grid_" + str(N)
 #model_name = "2_Agents_" + "comm_" + "Fixed_Prey_" + "Grid_" + str(N)
-#model_name = "2_Agents_" + "comm_" + "Moving_Prey_" + "Grid_" + str(N)
+model_name = "2_Agents_" + "comm_" + "Moving_Prey_" + "Grid_" + str(N)
 
 
 # RUN THE FUNCTIONS defined in utils.py
@@ -47,7 +47,7 @@ model_name = "2_Agents_" + "no_comm_" + "Moving_Prey_" + "Grid_" + str(N)
 #time_goal, b_ask1_list, b_give1_list = utl.run_multiple_episodes(n_episodes, env, max_steps, epsilon, alpha)
 
 # perform 1 TRAINING of n_episodes with GRAPHICAL SIMULATION
-time_goal, b_ask1_list, b_give1_list = utl.run_training_simulation(n_episodes, env, max_steps, epsilon, alpha)
+#time_goal, b_ask1_list, b_give1_list = utl.run_training_simulation(n_episodes, env, max_steps, epsilon, alpha)
 
 # repat TRAINING process n_processes time (pay attention to the name of the environment)
 # env_type parameter in the repeat_process() function can be : "comm_prey", "no_comm_prey", "comm"
@@ -56,7 +56,7 @@ n_processes = 20
 time_goal, b_ask1_list, b_give1_list = utl.repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, "no_comm_prey", N)
 '''
 
-'''
+''''
 # SAVE environment object into file for later retrieval
 # useful when performing 1 training of n_episodes to later see what the agents have learned
 with open(model_name + "_env", "wb") as fp:
@@ -75,7 +75,7 @@ with open(model_name + "_b_ask_list", "wb") as fp:
 with open(model_name + "_b_give_list", "wb") as fp:
     pickle.dump(b_give1_list, fp)
 '''
-
+'''
 # PLot TG over the episodes
 utl.plot_time_to_goal(model_name, n_episodes, time_goal)
 plt.clf()
@@ -107,10 +107,10 @@ with open(model_name + "_env", "rb") as fp:
 #print(env.preds[0].Q)
 
 # run simulation after training
-#utl.run_simulation(env, with_budget=0)
+utl.run_simulation(env, with_budget=0)
 
 
-
+'''
 # ------------------------------------ COMPARISONS of different models learning ----------------------------------#
 
 # ----------load TG lists for combined plot----------- #
