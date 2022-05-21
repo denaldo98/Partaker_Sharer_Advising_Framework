@@ -1,11 +1,11 @@
 import numpy as np
 import time
+import os
+
+# for plots
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-darkgrid')
 plt.rcParams["figure.figsize"] = (12, 6)
-from numba import jit
-import os
-import time
 
 # import environments
 import environment_comm
@@ -25,8 +25,11 @@ def cls():
 # ---------------- TRAINING FUNCTIONS -----------------#
 
 # run many episodes
-@jit
 def run_multiple_episodes(n_episodes, env, max_steps, epsilon, alpha):
+    '''
+    Perform the training over the environment env for n_episodes.
+    - max_steps defines the maximum number of steps of each episode (if goal not reached)
+    '''
     
     # Time to goal of each episode
     time_goal = []
@@ -73,9 +76,14 @@ def run_multiple_episodes(n_episodes, env, max_steps, epsilon, alpha):
 
 
 # TRAINING SIMULATION OF AGENT COMMUNICATION
-@jit
 def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
-
+    '''
+    Perform the training over the environment env for n_episodes.
+    The function is exactly the same as the one above with same parameters,
+    but the TRAINING process is shown in the GRID wiht moving agents and prey
+    and some information about chosen actions, coordinates at each time step 
+    of the training
+    '''
     # Time to goal of each episode
     time_goal = []
 
@@ -163,7 +171,14 @@ def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
 
 # SIMULATION (with the LEARNED POLICY)
 def run_simulation(env, with_budget = 0):
-    
+    '''
+    Runs a single episode showing the environment grid.
+    It assumes to take as a parameter env an already trained model.
+    The purpose is to show how the agents behave after having learned a policy
+    PARAMETERS:
+    - env = environment with already trained agents.
+    - with_budget = 1 if the env in case of PSAF environment
+    '''
     reward = "Initial configuration -->NO REWARD"
     action = np.array(["No action", "No action"])
     prey_action = "No action"
@@ -174,9 +189,10 @@ def run_simulation(env, with_budget = 0):
     # zero alpha end epsilon to show the learned policy
     env.reset(epsilon=0, alpha=0)
     
-    # in case of agents with budget, set it to zero
+    # in case of agents with budget, set it to zero (we don't want to show training)
     if with_budget:
         env.set_budget()
+
     # perform 1 full episode
     while not goal:
         print(env)
@@ -201,9 +217,16 @@ def run_simulation(env, with_budget = 0):
 
 
 # repeat process many times (200 runs in the paper)
-@jit
 def repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, env_type, env_size):
-
+    '''
+    - Repeat TRAINING PROCESS n_processes times.
+    - The function calls the previously defined run_multiple_episodes() for n_processes iterations
+      env_type can be a string among: "comm_prey", "no_comm_prey", "comm" (any other string for
+      non communicating environment with fixed agent)
+      depending on the type of the environment to define
+    - env_size is the size of the grid (int number)
+    - The other parameters as before
+    '''
     # TG list of each process iteration
     tg_list = []
 
@@ -225,7 +248,7 @@ def repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, env_type,
         # at each process iteration we re-create the environment
         if env_type == "comm_prey": # PSAF environment with moving prey
             env = environment_comm_prey.Environment(env_size)
-        elif env_type == "no_comm_prey": # non communcating preds with moving prey
+        elif env_type == "no_comm_prey": # non communicating preds with moving prey
             env = environment_no_comm_prey.Environment(env_size)
         elif env_type == "comm": # PSAF environment with fixed prey
             env = environment_comm.Environment(env_size)
@@ -278,7 +301,14 @@ def repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, env_type,
 # ---------------- PLOTTING FUNCTIONS -----------------#
 
 def plot_time_to_goal(model_name, n_episodes, time_goal, avg = 0 ):
-
+    '''
+    Plot TG over the episodes, or the TG averaged every 100 episods
+    PARAMETERS:
+    - model_name = name of the model to analyze
+    - n_episodes = number of training episodes to show in the plot
+    - time_goal = TG list
+    - avg = 1 for plotting averaged TG every 100 episodes
+    '''
     if avg: # plot avg every 100 episodes
         averages = []
         for i in range(int(n_episodes/100)):
@@ -299,6 +329,10 @@ def plot_time_to_goal(model_name, n_episodes, time_goal, avg = 0 ):
 
 # PLOT comparison of TGs
 def plot_TG_comparison(model_name1, model_name2, list1, list2, n_episodes, avg=1):
+    '''
+    Compare TG lists of 2 different models
+    Parameter avg as before
+    '''
     if avg:
         averages1 = []
         averages2 = []
@@ -323,11 +357,47 @@ def plot_TG_comparison(model_name1, model_name2, list1, list2, n_episodes, avg=1
         plt.tight_layout()
         plt.savefig("comparison" + "_avgTG_" + model_name1 + "_" + model_name2)
 
-
+# plot budget
 def plot_budget(model_name, type_of_budget, n_episodes, budget_list):
+    '''
+    Plot budget usage of the model with name model_name
+    PARAMETERS:
+    - type_of_budget = string specifying the type of plotted budget (b_ask or b_give)
+    - budget_list = list with budget values over the episodes
+    '''
     plt.plot(range(n_episodes), budget_list)
     plt.title(type_of_budget + " first predator")
     plt.xlabel("Training Episodes")
     plt.ylabel(type_of_budget)
     plt.tight_layout()
     plt.savefig(model_name + "_" + type_of_budget)
+
+# PLOT comparison of b_ask budgets
+def plot_budget_comparison(model_name1, model_name2, list1, list2, n_episodes, avg=1):
+    '''
+    Compare budget lists of 2 different models
+    Parameter avg as before
+    '''
+    if avg:
+        averages1 = []
+        averages2 = []
+        for i in range(int(n_episodes/100)):
+            averages1.append(np.mean(list1[i*100: i*100 + 100]))
+            averages2.append(np.mean(list2[i*100: i*100 + 100]))  
+        plt.plot(range(int(n_episodes/100)), averages1, label=model_name1)
+        plt.plot(range(int(n_episodes/100)), averages2, label=model_name2)
+        plt.title("b_ask averaged every 100 episodes")
+        plt.xlabel("Training Episodes (x100)")
+        plt.ylabel("b_ask")
+        plt.legend()
+        plt.tight_layout() 
+        plt.savefig("comparison" + "_avgBudget_" + model_name1 + "_" + model_name2)    
+    else:
+        plt.plot(range(n_episodes), list1, label=model_name1)
+        plt.plot(range(n_episodes), list2, label=model_name2)
+        plt.title("b_ask over the episodes")
+        plt.xlabel("Training Episodes")
+        plt.ylabel("b_ask")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig("comparison" + "_budget_" + model_name1 + "_" + model_name2)
