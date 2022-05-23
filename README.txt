@@ -1,4 +1,4 @@
--------------------------------------------- INSTRUCTIONS TO INSTALL AND RUN THE SIMULATION of the PARTAKER-SHARER ADVISING FRAMEWORK --------------------------------------------
+--------------------------------- INSTRUCTIONS TO INSTALL AND RUN THE SIMULATION of the PARTAKER-SHARER ADVISING FRAMEWORK -------------------------------------
 
 -- Simulation implemented in Python:
 	--> we recommend to install 'python 3.10' or more recent versions (https://www.python.org/downloads/)
