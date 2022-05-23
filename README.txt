@@ -1,4 +1,4 @@
---------------------------------- INSTRUCTIONS TO INSTALL AND RUN THE SIMULATION of the PARTAKER-SHARER ADVISING FRAMEWORK -------------------------------------
+--------------- INSTRUCTIONS TO INSTALL AND RUN THE SIMULATION of the PARTAKER-SHARER ADVISING FRAMEWORK ------------------
 
 -- Simulation implemented in Python:
 	--> we recommend to install 'python 3.10' or more recent versions (https://www.python.org/downloads/)
@@ -20,7 +20,7 @@ In the project folder there are 2 sub-folders containing Python files:
 
 
 
------------------------------------------------ STRUCTURE of the 'two_agent' sub-folder: -----------------------------------------------
+--------------- STRUCTURE of the 'two_agent' sub-folder: --------------
 
 Inside the 'two_agent' subfolder (same structure for the 'one_agent' subfolder):
 	-> there is 1 Python file for each type of environment:
@@ -34,7 +34,7 @@ Inside the 'two_agent' subfolder (same structure for the 'one_agent' subfolder):
 	-> 'main.py' contains the main program to RUN (it just calls the functions of 'utils.py')
 
 
--------------------------------------------- RUN SIMULATION ----------------------------------------	
+--------------------------- RUN SIMULATION -------------------------	
 
 	TO RUN A SIMULATION JUST run the 'main.py' (which imports the environments and 'utils.py', so be careful to have everything on the same folder):
 
