@@ -1,10 +1,10 @@
 -------------------------------------------- INSTRUCTIONS TO INSTALL AND RUN THE SIMULATION of the PARTAKER-SHARER ADVISING FRAMEWORK --------------------------------------------
 
 -- Simulation implemented in Python:
-	--> we recomment to install 'python 3.10' (https://www.python.org/downloads/)
+	--> we recommend to install 'python 3.10' or more recent versions (https://www.python.org/downloads/)
 
--- Required packages (to be installed using the 'pip install <package_name>' command from command line (after having installed python and pip):
-	- numpy (to eventually download and install it: 'pip3 install numpy', from command line)
+-- Required PACKAGES (to be installed using the 'pip install <package_name>' command from command line (after having installed Python and pip):
+	- numpy (to download and install it: 'pip3 install numpy', from command line)
 	- matplotlib (follow same procedure to install)
 	- pickle
 	- time
@@ -13,32 +13,32 @@
 	- math
 	
 
-In the python project folder there are 2 subfolders containing python files:
+In the project folder there are 2 sub-folders containing Python files:
 	- 'one_agent' --> contains code for the single agent/predator model
 	- 'two_agent' --> contains code for the model with 2 predators/agents
 
 
 
 
------------------------------------------------ INSTRUCTIONS TO RUN THE CODE INSIDE 'two_agent' subfolder: -----------------------------------------------
+----------------------------------------------- STRUCTURE of the 'two_agent' sub-folder: -----------------------------------------------
 
 Inside the 'two_agent' subfolder (same structure for the 'one_agent' subfolder):
-	-> there is 1 python file for each type of environment:
-		- 'environment_comm.py' defines the "environment" and "agent" python classes for the case with a FIXED prey and partaker-sharer communication
-		- 'environment_comm_prey.py' defines the "environment" and "agent" python classes for the case with a MOVING prey and partaker-sharer communication
-		- 'environment_no_comm'.py defines the "environment" and "agent" python classes for the case with a FIXED prey and NO communication
-		- 'environment_no_comm_prey'.py defines the "environment" and "agent" python classes for the case with a MOVING prey and NO communication
+	-> there is 1 Python file for each type of environment:
+		- 'environment_comm.py' defines the "environment" and "agent" Python classes for the case with a FIXED prey and partaker-sharer communication
+		- 'environment_comm_prey.py' defines the "environment" and "agent" Python classes for the case with a MOVING prey and partaker-sharer communication
+		- 'environment_no_comm'.py defines the "environment" and "agent" Python classes for the case with a FIXED prey and NO communication
+		- 'environment_no_comm_prey'.py defines the "environment" and "agent" Python classes for the case with a MOVING prey and NO communication
 
 	-> 'utils.py' contains the definitions of the main functions used in the 'main.py' program : functions and parameters are described as comments
 
-	-> 'main.py' contains the main program to RUN:
+	-> 'main.py' contains the main program to RUN (it just calls the functions of 'utils.py')
 
 
------------------------------------------------ RUN SIMULATION -------------------------------------------	
+-------------------------------------------- RUN SIMULATION ----------------------------------------	
 
 	TO RUN A SIMULATION JUST run the 'main.py' (which imports the environments and 'utils.py', so be careful to have everything on the same folder):
 
-			- in the 'main.py' define the grid size of interest and the training parameters ("n_episodes" and "max_steps")
+			- in the 'main.py' define the grid size of interest and the training parameters ("n_episodes" and "max_steps", already setted)
 			- then create the environment of interest by calling the corresponding class constructor (just un-comment one of the 4 possible environments, we already un-comment the most interesting one)
 			- select the name of the chosen model (un-comment the desired one, we already un-comment the most interseting one)
 			- To see/run the simulation, un-comment the function 'utl.run_training_simulation(...)' which will run a full training of n_episodes on the chosen model visualizing (we already un-comment it for semplicity)

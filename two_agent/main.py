@@ -14,7 +14,7 @@ import environment_no_comm
 
 
 # GRID SIZE
-N = 12
+N = 10
 
 # Q-LEARNING PARAMS
 epsilon = 0.1 
@@ -47,22 +47,24 @@ model_name = "2_Agents_" + "comm_" + "Moving_Prey_" + "Grid_" + str(N)
 #time_goal, b_ask1_list, b_give1_list = utl.run_multiple_episodes(n_episodes, env, max_steps, epsilon, alpha)
 
 # perform 1 TRAINING of n_episodes with GRAPHICAL SIMULATION
-#time_goal, b_ask1_list, b_give1_list = utl.run_training_simulation(n_episodes, env, max_steps, epsilon, alpha)
+time_goal, b_ask1_list, b_give1_list = utl.run_training_simulation(n_episodes, env, max_steps, epsilon, alpha)
+
+# perform 1 TRAINING of n_episodes with GRAPHICAL SIMULATION EVERY 5000 EPISODES
+#time_goal, b_ask1_list, b_give1_list = utl.run_training_simulation2(n_episodes, env, max_steps, epsilon, alpha)
 
 # repat TRAINING process n_processes time (pay attention to the name of the environment)
 # env_type parameter in the repeat_process() function can be : "comm_prey", "no_comm_prey", "comm"
-'''
-n_processes = 20
-time_goal, b_ask1_list, b_give1_list = utl.repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, "no_comm_prey", N)
-'''
+#n_processes = 20
+#time_goal, b_ask1_list, b_give1_list = utl.repeat_process(n_processes, n_episodes, max_steps, epsilon, alpha, "no_comm_prey", N)
 
-''''
+
+'''
 # SAVE environment object into file for later retrieval
 # useful when performing 1 training of n_episodes to later see what the agents have learned
 with open(model_name + "_env", "wb") as fp:
     pickle.dump(env, fp)
-'''
 
+'''
 '''
 # save TG  into file for later retrieval
 with open(model_name + "_TG_list", "wb") as fp:
@@ -75,7 +77,8 @@ with open(model_name + "_b_ask_list", "wb") as fp:
 with open(model_name + "_b_give_list", "wb") as fp:
     pickle.dump(b_give1_list, fp)
 '''
-'''
+
+
 # PLot TG over the episodes
 utl.plot_time_to_goal(model_name, n_episodes, time_goal)
 plt.clf()
@@ -110,7 +113,7 @@ with open(model_name + "_env", "rb") as fp:
 utl.run_simulation(env, with_budget=0)
 
 
-'''
+
 # ------------------------------------ COMPARISONS of different models learning ----------------------------------#
 
 # ----------load TG lists for combined plot----------- #

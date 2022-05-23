@@ -134,7 +134,7 @@ def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
             reward, actions, prey_action, b_ask1, b_give1 = env.transition()
             goal = reward
             performed_steps += 1
-            #time.sleep(0.25) # sleep to see plot
+            #time.sleep(0.1) # sleep to see plot
             cls() # clear previous output from terminal
 
         # Append TG of each episode
@@ -165,6 +165,120 @@ def run_training_simulation(n_episodes, env, max_steps, epsilon, alpha):
         print("Reward: {}".format(reward))
         print("Performed steps: {}".format(performed_steps))
 
+    end_time = time.time()
+    print("\n\nTRAINING FINISHED") 
+    print("\nTotal required time: {} seconds, {} minutes".format(end_time - start_time, (end_time - start_time)/60))
+
+    return time_goal, b_ask1_list, b_give1_list
+
+
+# TRAINING SIMULATION OF AGENT COMMUNICATION (every 5000 episodes)
+def run_training_simulation2(n_episodes, env, max_steps, epsilon, alpha):
+    '''
+    Perform the training over the environment env for n_episodes.
+    The function is exactly the same as the one above with same parameters,
+    but the TRAINING process is shown in the GRID wiht moving agents and prey
+    and some information about chosen actions, coordinates at each time step 
+    of the training and every 5000 episodes
+    '''
+    # Time to goal of each episode
+    time_goal = []
+
+    # b_ask of 1st agent
+    b_ask1_list = []
+
+    # b_give of 1st agent
+    b_give1_list = []
+    
+    start_time = time.time()
+    print("STARTING TRAINING")
+
+    # episodes to show in the simulation
+    episodes_list = [0, 4999 ,9999, 14999, 19999]
+    for episode in range(n_episodes):
+        
+        #print("\n\nEpisode: {}".format(episode))
+
+        # randomly initialize the state of the env
+        env.reset(epsilon, alpha)
+
+        goal = 0 # 1 if goal state
+        performed_steps = 0 # TG
+
+        reward = "Initial configuration -->NO REWARD"
+        actions = np.array(["No action", "No action"])
+        prey_action = "No action"
+        #print("Now watch TRAINING proceed step-by-step")
+
+        # run episode until reaching goal state or max_steps
+        while ((goal != 1) and (performed_steps < max_steps)):
+
+            # print useful info
+            if episode in episodes_list:
+                if (episode != 0):
+                    cls()
+                print(env)
+                print("Episode: {}".format(episode + 1))
+                print("Timestep: {}".format(performed_steps))
+                print("Predator X coordinates: {}".format(env.pred_locs[0]))
+                print("Predator Y coordinates: {}".format(env.pred_locs[1]))
+                print("Prey O coordinate: {}".format(env.prey_loc[0]))
+                print("b_ask of X: {}".format(env.preds[0].b_ask))
+                print("b_give of X: {}".format(env.preds[0].b_give))
+                print("b_ask of Y: {}".format(env.preds[1].b_ask))
+                print("b_give of Y: {}".format(env.preds[1].b_give))
+                if actions[0] != "No action":
+                    print("Action chosen by X: {}".format(ACTION_TO_STRING[int(actions[0])]))
+                    print("Action chosen by Y: {}".format(ACTION_TO_STRING[int(actions[1])]))
+                    if prey_action != -1:
+                        print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
+                print("Reward: {}".format(reward))
+                if episode == 0:
+                    time.sleep(0.05) # sleep to see plot
+                else:
+                    time.sleep(0.3)
+                cls() # clear previous output from terminal
+
+            reward, actions, prey_action, b_ask1, b_give1 = env.transition()
+            goal = reward
+            performed_steps += 1
+            
+        # Append TG of each episode
+        time_goal.append(performed_steps)
+
+        # append b_ask1 and b_give1 after each episode
+        b_ask1_list.append(b_ask1)
+        b_give1_list.append(b_give1)
+
+        if episode in episodes_list:
+            print(env)
+            if goal:
+                print("Goal state reached!")
+            else:
+                print("Max number of steps reached")
+        
+            print("Predator X coordinates: {}".format(env.pred_locs[0]))
+            print("Predator Y coordinates: {}".format(env.pred_locs[1]))
+            print("Prey O coordinate: {}".format(env.prey_loc[0]))
+            print("b_ask of X: {}".format(env.preds[0].b_ask))
+            print("b_give of X: {}".format(env.preds[0].b_give))
+            print("b_ask of Y: {}".format(env.preds[1].b_ask))
+            print("b_give of Y: {}".format(env.preds[1].b_give))
+            print("Action chosen by X: {}".format(ACTION_TO_STRING[int(actions[0])]))
+            print("Action chosen by Y: {}".format(ACTION_TO_STRING[int(actions[1])]))
+            if prey_action != -1:
+                print("Prey action: {}".format(ACTION_TO_STRING[prey_action]))
+
+            print("Reward: {}".format(reward))
+            print("Performed steps: {}".format(performed_steps))
+
+        # show training episodes
+        if episode in episodes_list:
+            cls()
+        if episode % 100 == 0:
+            print(f"Completed {episode} / {n_episodes} episodes")
+            #cls()
+        
     end_time = time.time()
     print("\n\nTRAINING FINISHED") 
     print("\nTotal required time: {} seconds, {} minutes".format(end_time - start_time, (end_time - start_time)/60))
@@ -214,6 +328,7 @@ def run_simulation(env, with_budget = 0):
         goal = reward
         time_step += 1
         input("Press enter to visualize next state")
+        cls()
     print(env)
     print("Goal state reached!")
 
