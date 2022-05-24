@@ -1,3 +1,7 @@
+Partaker-Sharer advising framework for multiagent reinforcement learning.
+https://www.ifaamas.org/Proceedings/aamas2019/pdfs/p2324.pdf
+
+
 --------------- INSTRUCTIONS TO INSTALL AND RUN THE SIMULATION of the PARTAKER-SHARER ADVISING FRAMEWORK ------------------
 
 -- Simulation implemented in Python:
