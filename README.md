@@ -1,5 +1,3 @@
-
-
 # Self-Organizing Multiagent Systems final project
 
 Project realized for the course *Self-Organizing Multiagent Systems* at *Universitat Politècnica de Catalunya*. 
